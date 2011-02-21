@@ -1,0 +1,17 @@
+README
+ircbots/__init__.py
+ircbots/billy_joel.py
+ircbots/bot.py
+ircbots/bot_controller.py
+ircbots/bot_factory.py
+ircbots/config.py
+ircbots/machu_picchu.py
+ircbots.egg-info/PKG-INFO
+ircbots.egg-info/SOURCES.txt
+ircbots.egg-info/dependency_links.txt
+ircbots.egg-info/top_level.txt
+ircbots/hooks/__init__.py
+ircbots/hooks/auto_op.py
+ircbots/hooks/connect.py
+ircbots/hooks/interfaces.py
+ircbots/hooks/twitter.py

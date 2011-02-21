@@ -1,0 +1,3 @@
+from ircbots import bot_controller
+
+bot_controller.BotController.create().start()

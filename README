@@ -1,0 +1,31 @@
+Bots:
+    - Register Action Char!
+    - Register Nick
+    - Register Actions
+    - Register Listeners
+    - Register Personality Functions ??
+
+Server:
+    - Connect to irc
+    - Handle all irc
+    - Accept action / listener registers, execute them
+
+Actions / Listeners:
+    - simple action requests from users
+        ex. <user>!bark 
+            <billyjoel>Woof!
+            <MachuPicchu>Grrerrer!
+    - auto-op listener
+
+    - kick unwelcome visitors
+        ex. billyjoel kicks amckinley (msg: Out with the racoons with you!!!)
+
+    - keep brain storming!
+
+    - ban list
+
+    - thwart hostile attack
+        ie. User unops person on a protect list.
+          immiediate unop, kick, and ban on ip.  LOCK DOWN THE DIAMONDTOWN
+
+now on github!~

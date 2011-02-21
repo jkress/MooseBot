@@ -1,0 +1,22 @@
+
+BillyJoelTheBot
+ToDo List
+
+=== Needs to be done next ===
+- Re-import and connect, try to get the server running after refactoring
+
+- Config sections are stored my the hook's class name.
+    - Listener.AutoOp and Action.AutoOp and Module.AutoOp should all map to the [AutoOp] config section
+
+- Shelve DB's should be keyed the same way? But have a different file in data/ for each 'key'
+    - Listener.AutoOp stores in data/AutoOp.db, etc.
+
+- Create and import to version control
+
+
+=== Modules and beyond? ===
+- Model users so we can start to build fun databases against ourselves
+    - Do we have to write users less as a module? 
+       or
+    - Do we want to let modules 'depend' on each other, and do cool module dependancy tricks?
+        - I.e., CoolModule requires FacebookConnect module. Say, if the CoolModule needs to reference the user database that FacebookConnect is in charge of managing.
