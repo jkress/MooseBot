@@ -6,6 +6,7 @@ from ircbots.hooks.auto_op import AutoOp
 from ircbots.hooks.github import Github
 
 import time, sys
+from random import randint
 
 class BillyJoel_Bot(Bot):
     def __init__(self):
@@ -22,6 +23,14 @@ class BillyJoel_Bot(Bot):
                 self.me(msg[4:])
             else:
                 self.say(msg)
+        
+        else:
+            user = user.split('!', 1)[0]
+            if self.nickname in msg:
+                if randint(0,1):
+                    self.say("%s: Woof!" % user)
+                else:
+                    self.me("wags his tail")
 
     def action(self, user, channel, msg):
         user = user.split('!', 1)[0]
