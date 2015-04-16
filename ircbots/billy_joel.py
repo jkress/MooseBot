@@ -3,7 +3,7 @@ from twisted.internet import reactor, protocol
 
 from bot import Bot
 from ircbots.hooks.auto_op import AutoOp
-from ircbots.hooks.github import GithubHook
+from ircbots.hooks.github import Github
 
 import time, sys
 
@@ -11,7 +11,7 @@ class BillyJoel_Bot(Bot):
     def __init__(self):
         Bot.__init__(self)
         self.nickname = self.__class__.__name__ 
-        self.modules = [ AutoOp(bot=self), GithubHook(bot=self) ]
+        self.modules = [ AutoOp(bot=self), Github(bot=self) ]
 
     def joined(self, channel):
         self.say("Woof!")
