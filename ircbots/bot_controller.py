@@ -21,10 +21,9 @@ class BotController():
 
         self.shelf = shelve.open('data/bot.db', flag='c')
 
-        self.host_config    = self.getConfig('host')
-        self.channel        = self.host_config['channel']
-        self.port           = int(self.host_config['port'])
-        self.server         = self.host_config['server']
+        self.server         = self.getConfig('host', 'server')
+        self.port           = int(self.getConfig('host', 'port'))
+        self.channel        = self.getConfig('host', 'channel')
 
         self.billyjoel      = BotFactory(self.channel, BillyJoel_Bot, self)
         #self.machupicchu   = BotFactory(self.channel, MachuPicchu, self)
