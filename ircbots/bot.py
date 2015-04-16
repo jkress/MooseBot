@@ -36,9 +36,14 @@ class Bot(irc.IRCClient, object):
 
     def connectionLost(self, reason):
         print "ConnectionLost"
-        irc.IRCClient.connectionLost(self)
+        irc.IRCClient.connectionLost(self, reason=reason)
 
     def signedOn(self):
         print "signedOn"
         self.join(self.factory.channel)
 
+    def say(self, message):
+        super(Bot, self).say(self.factory.channel, message)
+
+    def me(self, message):
+        super(Bot, self).ctcpMakeQuery(self.factory.channel, [('ACTION', message)])

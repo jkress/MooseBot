@@ -3,23 +3,25 @@ from twisted.internet import reactor, protocol
 
 from bot import Bot
 from ircbots.hooks.auto_op import AutoOp
-from ircbots.hooks.connect import Connect
-from ircbots.hooks.rss     import Rss
+from ircbots.hooks.github import GithubHook
 
 import time, sys
 
-class BillyJoel(Bot):
+class BillyJoel_Bot(Bot):
     def __init__(self):
         Bot.__init__(self)
         self.nickname = self.__class__.__name__ 
-        self.modules = []
+        self.modules = [ AutoOp(bot=self), GithubHook(bot=self) ]
 
     def joined(self, channel):
-        self.modules += [ Connect(bot=self), Rss(bot=self) ]
-        self.describe(channel, "Looks around for cats")
+        self.say("Woof!")
 
     def privmsg(self, user, channel, msg):
-        pass
+        if self.nickname == channel:
+            if msg.startswith("/me "):
+                self.me(msg[4:])
+            else:
+                self.say(msg)
 
     def action(self, user, channel, msg):
         user = user.split('!', 1)[0]

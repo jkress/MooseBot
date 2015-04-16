@@ -55,7 +55,7 @@ class Rss_Listener(ActionListener):
                     stories += self.keywords[word]
 
             story = random.choice(stories)
-            self.bot.say(channel, str("\"%s\"" % (story[0])))
+            self.bot.say(str("\"%s\"" % (story[0])))
             self.conversation = []
 
     def _update_feeds(self):
@@ -116,22 +116,22 @@ class Rss_Listener(ActionListener):
         if not msg:
             if self.active:
                 self.active = False
-                self.bot.say(channel, "I won't mention RSS anymore.")
+                self.bot.say("I won't mention RSS anymore.")
             else:
                 self.active = True
-                self.bot.say(channel, "Watching for interesting RSS feeds.")
+                self.bot.say("Watching for interesting RSS feeds.")
 
         elif msg.lower() == 'stats':
-            self.bot.say(channel, "I am %sactive." % ("in" if not self.active else ""))
-            self.bot.say(channel, "I know about %d links" % len(self.links))
-            self.bot.say(channel, "I have %d active feeds" % len(self.feeds))
-            self.bot.say(channel, "I have stored %d active entries" % len(self.entries))
-            self.bot.say(channel, "I am tracking %d keywords" % len(self.keywords))
+            self.bot.say("I am %sactive." % ("in" if not self.active else ""))
+            self.bot.say("I know about %d links" % len(self.links))
+            self.bot.say("I have %d active feeds" % len(self.feeds))
+            self.bot.say("I have stored %d active entries" % len(self.entries))
+            self.bot.say("I am tracking %d keywords" % len(self.keywords))
 
         elif msg.lower() == 'keywords':
             idx = 0
             while idx < len(self.keywords):
-                self.bot.say(channel, "Keywords: %s" % ' '.join(self.keywords.keys()[idx:idx+50]) )
+                self.bot.say("Keywords: %s" % ' '.join(self.keywords.keys()[idx:idx+50]) )
                 idx += 50
         else:
             if msg.startswith("http://"):
@@ -142,6 +142,6 @@ class Rss_Listener(ActionListener):
             self.bot.describe(channel, "licks %s in the face" % user )
             if not self.active:
                 self.active = True
-                self.bot.say(channel, "Watching for interesting RSS feeds.")
+                self.bot.say("Watching for interesting RSS feeds.")
 
 

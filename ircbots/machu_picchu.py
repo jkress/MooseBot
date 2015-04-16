@@ -14,7 +14,7 @@ class MachuPicchu(Bot):
 
     def joined(self, channel):
         self.modules += [ AutoOp(bot=self) ]
-        self.say(channel,"Ruff and all that stuff!!!!")
+        self.say("Ruff and all that stuff!!!!")
 
     def privmsg(self, user, channel, msg):
         pass
@@ -24,5 +24,5 @@ class MachuPicchu(Bot):
         print "action from", user
     
     def userJoined(self, user, channel):
-        self.say(channel,"Woof!! Hello " + user + " welcome to Diamondtown.  Where dogs are androids and androids are dogs.")
+        self.say("Woof!! Hello " + user + " welcome to Diamondtown.  Where dogs are androids and androids are dogs.")
         Bot.userJoined(self, user, channel)
