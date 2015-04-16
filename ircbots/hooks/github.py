@@ -56,10 +56,15 @@ class Github_ActionListener(ActionListener):
 
     def github_command_handler(self, user, channel, msg):
         msg_tokens = msg.split()
+        branches = self.controller.getConfig('github', 'branches').strip()
+        branches = branches.split(',') if branches else []
 
         if not msg_tokens:
-            keyword = "disabled" if not self.enabled else "enabled, listening on %d" % self.listen_port
-            self.bot.say("GitHub messages are %s" % (keyword))
+            plural = "es" if len(branches) > 1 or len(branches) == 0 else ""
+            status = "disabled" if not self.enabled else "enabled, tracking %d branch%s, listening on %d" % \
+                (len(branches), plural, self.listen_port)
+
+            self.bot.say("GitHub messages are %s" % (status))
             self.bot.say("!github <on/off>")
             if self.enabled:
                 self.bot.say("!branch <branch name>")
@@ -99,27 +104,48 @@ class GithubHookHandler(Resource):
                 repo = str(data['repository']['full_name'])
                 url = str(data['repository']['html_url'])
 
-                self.bot.say("Ping from GitHub: %s - %s" % (repo, url))
+                self.bot.say("Ping from GitHub: [%s] - %s" % (repo, url))
 
             if event == "push":
                 ref = str(data['ref'])
                 default_branch = str(data['repository']['default_branch'])
                 repo = str(data['repository']['full_name'])
+                messages = str(data['head_commit']['message']).split('\n')
+                added = len(data['head_commit']['added'])
+                removed = len(data['head_commit']['removed'])
+                modified = len(data['head_commit']['modified'])
                 pusher = str(data['sender']['login'])
                 compare_url = str(data['compare'])
 
+                branches = self.hook.controller.getConfig('github', 'branches').strip()
+                branches = branches.split(',') if branches else []
+
                 if ref == "refs/heads/%s" % default_branch:
                     self.bot.say("[%s] %s PUSHED to branch \"%s\"" % (repo, pusher, default_branch))
+                    for m in messages:
+                        if m:
+                            self.bot.say("| %s" % m)
+                    self.bot.say("Files added: %d, removed: %d, modified: %d" % (added, removed, modified))
+                    self.bot.say(compare_url)
+
+                elif ref in ["refs/heads/%s" % b for b in branches]:
+                    branch_name = ref.split('/')[-1]
+                    self.bot.say("[%s] %s PUSHED to branch \"%s\"" % (repo, pusher, branch_name))
+                    self.bot.say("Files added: %d, removed: %d, modified: %d" % (added, removed, modified))
                     self.bot.say(compare_url)
 
             if event == "pull_request":
                 action = str(data['action']).upper()
+                merged = data['pull_request']['merged']
                 number = int(data['number'])
                 user = str(data['sender']['login'])
                 title = str(data['pull_request']['title'])
                 branch = str(data['pull_request']['head']['ref'])
                 repo = str(data['pull_request']['head']['repo']['full_name'])
                 url = str(data['pull_request']['html_url'])
+
+                if action == "CLOSED" and merged == True:
+                    action = "CLOSED and MERGED"
 
                 self.bot.say("[%s] %s %s pull request #%d \"%s\" (%s)" % (repo, user, action, number, title, branch))
                 self.bot.say(url)
