@@ -14,9 +14,8 @@ class AutoOp_Listener(Listener):
     def verify_op_join(self, *args, **kwargs):
         username = args[0]
         channel  = args[1]
-        auto_op_user_list = self.controller.getConfig('AutoOp','users')
+        auto_op_user_list = self.controller.getConfig('AutoOp','users').split(',')
         if username in auto_op_user_list:
-            self.bot.say(channel,"%s: you get op! arf!" % username)
             self._do_auto_op(username, channel)
 
     def _do_auto_op(self, name, channel):
@@ -31,12 +30,32 @@ class AutoOp_ActionListener(ActionListener):
         msg_tokens = msg.lower().split()
 
         user_list = None   # Get the user list from the bot
+        auto_op_user_list = self.controller.getConfig('AutoOp', 'users').split(',')
         
         if not msg_tokens:
-            # Op the requesting user
-            self.bot.say(channel, "%s: Op'ing you just this once" % user)
+            self.bot.say("Auto-op list: %s" % (','.join(auto_op_user_list)))
+            self.bot.say("!op <user> to add/remove")
 
         elif msg_tokens[0] in ['auto','add','set','save']:
             # Op them, and add them to the persistent auto_op_user_list
-            self.bot.say(channel, "Adding to persistent auto_op")
+            self.bot.say("Not implemented")
+
+        else:
+            # Assume the argument is a user, try to op that user
+            new_op_user = msg_tokens[0]
+            if user in auto_op_user_list:
+                if new_op_user not in auto_op_user_list:
+                    self.bot.say("Adding %s to the Auto-op list" % new_op_user)
+                    auto_op_user_list += [new_op_user]
+                    self.controller.setConfig('AutoOp', 'users', ','.join(auto_op_user_list))
+                    self.bot.mode(channel, True, 'o', user=new_op_user)
+
+                else:
+                    self.bot.say("Removing %s from the Auto-op list" % new_op_user)
+                    auto_op_user_list = set(auto_op_user_list) - set([new_op_user])
+                    self.controller.setConfig('AutoOp', 'users', ','.join(auto_op_user_list))
+                    self.bot.mode(channel, False, 'o', user=new_op_user)
+
+            else:
+                self.bot.say("%s: You're not on the list" % user)
             

@@ -34,7 +34,7 @@ class Connect_ActionListener(ActionListener):
         if self._do_connect(user, channel, msg):
             session = self.session[user]
             name = self.fb[user].users.getInfo(session['uid'], ['name'])[0]
-            self.bot.say(channel, "%s: You are logged into Facebook as %s" % (user, str(name['name'])))
+            self.bot.say("%s: You are logged into Facebook as %s" % (user, str(name['name'])))
 
     # This should be called before every action.
     # Returns False : The user needs to visit the URL to log in.
@@ -51,7 +51,7 @@ class Connect_ActionListener(ActionListener):
                 self.session[user]['secret'] = self.fb[user].secret
                 self.controller.shelve('facebook-sessions',self.session)
                 name = self.fb[user].users.getInfo(session['uid'], ['name'])[0]
-                self.bot.say(channel, "%s: Welcome to Facebook, %s" % (user,str(name['name'])))
+                self.bot.say("%s: Welcome to Facebook, %s" % (user,str(name['name'])))
 
             # Return True, proceed to query against self.fb[user]
             return True
@@ -64,15 +64,15 @@ class Connect_ActionListener(ActionListener):
             self.fb[user].auth.createToken()
             self.session[user] = None
             self.newsfeed[user] = None
-            self.bot.say(channel, "%s: Log into Facebook, then try again" % (user) )
-            self.bot.say(channel, "%s: %s" % (user, self.fb[user].get_login_url()) )
+            self.bot.say("%s: Log into Facebook, then try again" % (user) )
+            self.bot.say("%s: %s" % (user, self.fb[user].get_login_url()) )
 
             # Advise that we cannot proceed; the user needs to log in / connect to our mojo
             return False
 
     def get_extended_permission(self, user, channel, msg, permission):
-        self.bot.say(channel, "%s: I need permission for this :/" % user)
-        self.bot.say(channel, "%s: %s" % (user, self.fb[user].get_ext_perm_url(permission))) 
+        self.bot.say("%s: I need permission for this :/" % user)
+        self.bot.say("%s: %s" % (user, self.fb[user].get_ext_perm_url(permission))) 
         
     def check_notifications(self, user, channel, msg):
         # Check and/or handle login first
@@ -104,9 +104,9 @@ class Connect_ActionListener(ActionListener):
                 responses += ["%s %s" % (num, "share" if num == 1 else "shares" )]
 
             if responses:
-                self.bot.say(channel, "%s: You have %s" % (user, ', '.join(responses)))
+                self.bot.say("%s: You have %s" % (user, ', '.join(responses)))
             else:
-                self.bot.say(channel, "%s: No notifications" % user) 
+                self.bot.say("%s: No notifications" % user) 
 
     def set_status(self, user, channel, msg):
         if self._do_connect(user,channel,msg):
@@ -119,13 +119,13 @@ class Connect_ActionListener(ActionListener):
                     response = self.fb[user].users.setStatus(msg,False, status_includes_verb=True)
 
                     if response:
-                        self.bot.say(channel, "%s %s" % (name, msg))
+                        self.bot.say("%s %s" % (name, msg))
                 else:
                     current_status = self.fb[user].users.getInfo(session['uid'],['status'])[0]['status']['message']
                     if current_status:
-                        self.bot.say(channel, "%s %s" % ( name, str(current_status)))
+                        self.bot.say("%s %s" % ( name, str(current_status)))
                     else:
-                        self.bot.say(channel, "%s has a blank status. :(" % (name))
+                        self.bot.say("%s has a blank status. :(" % (name))
             except facebook.FacebookError as e:
                 self.get_extended_permission(user, channel, msg, 'status_update')
 
@@ -137,12 +137,12 @@ class Connect_ActionListener(ActionListener):
                 time = int(msg) if msg else 30
                 checkFn.start(time)
                 self.newsfeed[user] = checkFn
-                self.bot.say(channel, "%s: Newsfeed monitoring On (%d seconds)" % (user, time))
+                self.bot.say("%s: Newsfeed monitoring On (%d seconds)" % (user, time))
             else:
                 if self.newsfeed[user]:
                     self.newsfeed[user].stop()
                 self.newsfeed[user] = None
-                self.bot.say(channel, "%s: Newsfeed monitoring Off" % user)
+                self.bot.say("%s: Newsfeed monitoring Off" % user)
 
     def _do_watch_newsfeed(self, user, channel, msg):
         print "_do_watch_newsfeed for %s in %s fired at %d" % (user, channel, int(time.time()))
@@ -156,8 +156,8 @@ class Connect_ActionListener(ActionListener):
             for item in results:
                 actor   = self.fb[user].fql.query("SELECT name FROM user WHERE uid == '%s' LIMIT 1" % item['actor_id'])[0]['name']
                 message = item['message']
-                self.bot.say(channel, str("%s %s" % (actor, message)))
+                self.bot.say("%s %s" % (actor, message)))
         except facebook.FacebookError:
-            self.bot.say(channel, "%s: Your permissions probably restrict this" % user)
+            self.bot.say("%s: Your permissions probably restrict this" % user)
             self.get_extended_permission(user, channel, msg, 'read_stream')
 
