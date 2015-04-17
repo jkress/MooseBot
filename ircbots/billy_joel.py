@@ -4,6 +4,7 @@ from twisted.internet import reactor, protocol
 from bot import Bot
 from ircbots.hooks.auto_op import AutoOp
 from ircbots.hooks.github import Github
+from ircbots.hooks.logger import Logger
 
 import time, sys
 from random import randint
@@ -12,7 +13,7 @@ class BillyJoel_Bot(Bot):
     def __init__(self):
         Bot.__init__(self)
         self.nickname = self.__class__.__name__ 
-        self.modules = [ AutoOp(bot=self), Github(bot=self) ]
+        self.modules = [ Logger(bot=self), AutoOp(bot=self), Github(bot=self) ]
 
     def joined(self, channel):
         self.say("Woof!")

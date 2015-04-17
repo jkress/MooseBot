@@ -71,13 +71,13 @@ class Github_ActionListener(ActionListener):
 
         elif msg_tokens[0].lower() in ["off", "quiet", "hide", "disable", "disabled"]:
             self.enabled = False
-            self.bot.say("GitHub messages are now disabled")
             self.controller.setConfig('github', 'enabled', '0')
+            self.bot.say("GitHub messages are now disabled")
 
         elif msg_tokens[0].lower() in ["on", "show", "enable", "enabled"]:
             self.enabled = True
-            self.bot.say("GitHub messages are now enabled")
             self.controller.setConfig('github', 'enabled', '1')
+            self.bot.say("GitHub messages are now enabled")
 
         else:
             self.bot.say("Not implemented")
@@ -144,11 +144,12 @@ class GithubHookHandler(Resource):
                 repo = str(data['pull_request']['head']['repo']['full_name'])
                 url = str(data['pull_request']['html_url'])
 
-                if action == "CLOSED" and merged == True:
-                    action = "CLOSED and MERGED"
+                if action == "SYNCHRONIZE":
+                    action = "UPDATED"
 
                 self.bot.say("[%s] %s %s pull request #%d \"%s\" (%s)" % (repo, user, action, number, title, branch))
-                self.bot.say(url)
+                if not merged:
+                    self.bot.say(url)
 
         return "OK\n\r"
 

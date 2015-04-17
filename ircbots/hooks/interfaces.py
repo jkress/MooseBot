@@ -23,6 +23,7 @@ class ActionListener(Listener):
     def action(self, user, channel, msg):
         user = user.split('!',1)[0]
         for action in self.actions.keys():
-            if msg.startswith(action):
+            # if msg.startswith(action):
+            if msg.split()[0] == action:
                 print "invoking action", action
-                self.actions[action](user, channel, msg[len(action):])
+                self.actions[action](user, channel, msg[len(action)+1:])
