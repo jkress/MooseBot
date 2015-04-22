@@ -25,49 +25,15 @@ class Github_ActionListener(ActionListener):
         reactor.listenTCP(self.listen_port, factory)
 
         self.hook("!github", self.github_command_handler)
-        self.hook("!branch", self.github_branch_handler)
-
-    def github_branch_handler(self, user, channel, msg):
-        msg_tokens = msg.split()
-        branches = self.controller.getConfig('github', 'branches').strip()
-        branches = branches.split(',') if branches else []
-
-        if self.enabled:
-            if not msg_tokens:
-                if len(branches):
-                    plural = "es" if len(branches) > 1 else ""
-                    self.bot.say("Monitoring %d branch%s: %s" % (len(branches), plural, ', '.join(branches)))
-                self.bot.say("!branch <branch name> to enable/disable branch push notifications")
-
-            elif len(msg_tokens) == 1:
-                branch_name = msg_tokens[0]
-                if branch_name not in branches:
-                    branches += [branch_name]
-                    branches.sort()
-                    self.controller.setConfig('github', 'branches', ','.join(branches))
-                    self.bot.say("Push notifications enabled for branch \"%s\"" % branch_name)
-
-                else:
-                    branches = list(set(branches) - set([branch_name]))
-                    branches.sort()
-                    self.controller.setConfig('github', 'branches', ','.join(branches))
-                    self.bot.say("Push notifications removed for branch \"%s\"" % branch_name)
-
 
     def github_command_handler(self, user, channel, msg):
         msg_tokens = msg.split()
-        branches = self.controller.getConfig('github', 'branches').strip()
-        branches = branches.split(',') if branches else []
 
         if not msg_tokens:
-            plural = "es" if len(branches) > 1 or len(branches) == 0 else ""
-            status = "disabled" if not self.enabled else "enabled, tracking %d branch%s, listening on %d" % \
-                (len(branches), plural, self.listen_port)
+            status = "disabled" if not self.enabled else "enabled, listening on %d" % (self.listen_port)
 
             self.bot.say("GitHub messages are %s" % (status))
             self.bot.say("!github <on/off>")
-            if self.enabled:
-                self.bot.say("!branch <branch name>")
 
         elif msg_tokens[0].lower() in ["off", "quiet", "hide", "disable", "disabled"]:
             self.enabled = False
@@ -107,32 +73,32 @@ class GithubHookHandler(Resource):
                 self.bot.say("Ping from GitHub: [%s] - %s" % (repo, url))
 
             if event == "push":
-                ref = str(data['ref'])
-                default_branch = str(data['repository']['default_branch'])
+                branch = str(data['ref'])[11:]
                 repo = str(data['repository']['full_name'])
-                messages = str(data['head_commit']['message']).split('\n')
-                added = len(data['head_commit']['added'])
-                removed = len(data['head_commit']['removed'])
-                modified = len(data['head_commit']['modified'])
+
+                commits = []
+                for commit in data['commits']:
+                    sha = str(commit['id'])[:7]
+
+                    messages = []
+                    for msg in str(commit['message']).split("\n"):
+                        if msg:
+                            messages.append(msg)
+
+                    commits.append((sha, messages))
+
                 pusher = str(data['sender']['login'])
                 compare_url = str(data['compare'])
 
-                branches = self.hook.controller.getConfig('github', 'branches').strip()
-                branches = branches.split(',') if branches else []
+                self.bot.say("[%s] %s PUSHED to branch \"%s\"" % (repo, pusher, branch))
+                for (sha, messages) in commits:
+                    for idx, msg in enumerate(messages):
+                        if idx == 0:
+                            self.bot.say("(%s): %s" % (sha, msg))
+                        else:
+                            self.bot.say("           %s" % (msg))
 
-                if ref == "refs/heads/%s" % default_branch:
-                    self.bot.say("[%s] %s PUSHED to branch \"%s\"" % (repo, pusher, default_branch))
-                    for m in messages:
-                        if m:
-                            self.bot.say("| %s" % m)
-                    self.bot.say("Files added: %d, removed: %d, modified: %d" % (added, removed, modified))
-                    self.bot.say(compare_url)
-
-                elif ref in ["refs/heads/%s" % b for b in branches]:
-                    branch_name = ref.split('/')[-1]
-                    self.bot.say("[%s] %s PUSHED to branch \"%s\"" % (repo, pusher, branch_name))
-                    self.bot.say("Files added: %d, removed: %d, modified: %d" % (added, removed, modified))
-                    self.bot.say(compare_url)
+                self.bot.say(compare_url)
 
             if event == "pull_request":
                 action = str(data['action']).upper()
@@ -140,6 +106,7 @@ class GithubHookHandler(Resource):
                 number = int(data['number'])
                 user = str(data['sender']['login'])
                 title = str(data['pull_request']['title'])
+                description = str(data['pull_request']['body'])
                 branch = str(data['pull_request']['head']['ref'])
                 repo = str(data['pull_request']['head']['repo']['full_name'])
                 url = str(data['pull_request']['html_url'])
@@ -148,6 +115,7 @@ class GithubHookHandler(Resource):
                     action = "UPDATED"
 
                 self.bot.say("[%s] %s %s pull request #%d \"%s\" (%s)" % (repo, user, action, number, title, branch))
+                #self.bot.say("\"%s\"" % (description))
                 if not merged:
                     self.bot.say(url)
 
