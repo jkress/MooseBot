@@ -75,6 +75,9 @@ class GithubHookHandler(Resource):
             if event == "push":
                 branch = str(data['ref'])[11:]
                 repo = str(data['repository']['full_name'])
+                pusher = str(data['sender']['login'])
+                compare_url = str(data['compare'])
+                is_deleted = True if str(data['deleted']) == "True" else False
 
                 commits = []
                 for commit in data['commits']:
@@ -87,18 +90,19 @@ class GithubHookHandler(Resource):
 
                     commits.append((sha, messages))
 
-                pusher = str(data['sender']['login'])
-                compare_url = str(data['compare'])
+                if is_deleted:
+                    self.bot.say("[%s] %s DELETED branch \"%s\"" % (repo, pusher, branch))
 
-                self.bot.say("[%s] %s PUSHED to branch \"%s\"" % (repo, pusher, branch))
-                for (sha, messages) in commits:
-                    for idx, msg in enumerate(messages):
-                        if idx == 0:
-                            self.bot.say("(%s): %s" % (sha, msg))
-                        else:
-                            self.bot.say("           %s" % (msg))
+                else:
+                    self.bot.say("[%s] %s PUSHED to branch \"%s\"" % (repo, pusher, branch))
+                    for (sha, messages) in commits:
+                        for idx, msg in enumerate(messages):
+                            if idx == 0:
+                                self.bot.say("(%s): %s" % (sha, msg))
+                            else:
+                                self.bot.say("           %s" % (msg))
 
-                self.bot.say(compare_url)
+                    self.bot.say(compare_url)
 
             if event == "pull_request":
                 action = str(data['action']).upper()
