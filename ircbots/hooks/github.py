@@ -115,7 +115,8 @@ class GithubHookHandler(Resource):
                     action = "UPDATED"
 
                 self.bot.say("[%s] %s %s pull request #%d \"%s\" (%s)" % (repo, user, action, number, title, branch))
-                #self.bot.say("\"%s\"" % (description))
+                if action == "OPENED":
+                    self.bot.say("%s" % (description))
                 if not merged:
                     self.bot.say(url)
 
