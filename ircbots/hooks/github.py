@@ -81,7 +81,7 @@ class GithubHookHandler(Resource):
                     sha = str(commit['id'])[:7]
 
                     messages = []
-                    for msg in str(commit['message']).split("\n"):
+                    for msg in str(commit['message']).replace("\r", "").split("\n"):
                         if msg:
                             messages.append(msg)
 
@@ -106,7 +106,7 @@ class GithubHookHandler(Resource):
                 number = int(data['number'])
                 user = str(data['sender']['login'])
                 title = str(data['pull_request']['title'])
-                description = str(data['pull_request']['body'])
+                description = str(data['pull_request']['body']).replace("\r", "")
                 branch = str(data['pull_request']['head']['ref'])
                 repo = str(data['pull_request']['head']['repo']['full_name'])
                 url = str(data['pull_request']['html_url'])
@@ -116,7 +116,9 @@ class GithubHookHandler(Resource):
 
                 self.bot.say("[%s] %s %s pull request #%d \"%s\" (%s)" % (repo, user, action, number, title, branch))
                 if action == "OPENED":
-                    self.bot.say("%s" % (description))
+                    for msg in description.split("\n"):
+                        if msg:
+                            self.bot.say("%s" % (msg))
                 if not merged:
                     self.bot.say(url)
 
