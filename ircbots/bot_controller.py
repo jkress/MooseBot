@@ -1,5 +1,5 @@
 from twisted.words.protocols import irc
-from twisted.internet import reactor, protocol
+from twisted.internet import reactor, protocol, ssl
 from twisted.python import log
 
 from ircbots.billy_joel import BillyJoel_Bot
@@ -26,8 +26,6 @@ class BotController():
         self.channel        = self.getConfig('host', 'channel')
 
         self.billyjoel      = BotFactory(self.channel, BillyJoel_Bot, self)
-        #self.machupicchu   = BotFactory(self.channel, MachuPicchu, self)
-        #self.moose         = BotFactory(self.channel, MooseBot, self)
 
     @classmethod
     def create(cls, *args, **kwargs):
@@ -55,9 +53,13 @@ class BotController():
             return None
 
     def start(self):
-        reactor.connectTCP(self.server, self.port, self.billyjoel)
-        #reactor.connectTCP(self.server, self.port, self.machupicchu)
-        #reactor.connectTCP(self.server, self.port, self.moose)
+        if int(self.getConfig('host', 'ssl')):
+            print "Connecting to %s:%d over SSL" % (self.server, self.port)
+            reactor.connectSSL(self.server, self.port, self.billyjoel, ssl.ClientContextFactory())
+        else:
+            print "Connecting to %s:%d over TCP" % (self.server, self.port)
+            reactor.connectTCP(self.server, self.port, self.billyjoel)
+
         reactor.run()
         self.finish()
 
